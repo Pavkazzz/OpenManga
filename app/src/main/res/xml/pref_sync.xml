@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <Preference
+        android:key="sync.account"
+        android:title="@string/account" />
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="sync.favourites"
+        android:title="@string/sync_favourites"
+        android:widgetLayout="@layout/pref_switchcompat" />
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="sync.history"
+        android:title="@string/sync_history"
+        android:widgetLayout="@layout/pref_switchcompat" />
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="sync.wifionly"
+        android:title="@string/over_wifi_only"
+        android:widgetLayout="@layout/pref_switchcompat" />
+    <Preference
+        android:layout="@layout/pref_info"
+        android:selectable="false"
+        android:title="@string/sync_terms" />
+</PreferenceScreen>

@@ -53,6 +53,11 @@
             android:key="ccache"
             android:title="@string/action_clear_cache" />
         <Preference
+            android:key="sync"
+            android:title="@string/sync">
+            <intent android:action="org.nv95.openmanga.syncopts" />
+        </Preference>
+        <Preference
             android:key="backup"
             android:title="@string/backup" />
         <Preference

@@ -283,4 +283,12 @@
     <string name="tip_favourite">Add manga to favourites for getting quick access to it. You also can enable notifications about new chapters</string>
     <string name="tip_save">Click to save manga to your device and read it anytime and anywhere without internet connection</string>
     <string name="tip_save_more">This is not full manga? Click to download missing chapters</string>
+    <string name="sync_settings">Sync settings</string>
+    <string name="account">Account</string>
+    <string name="sync">Synchronization</string>
+    <string name="sync_tip">Synchronize your history and favourites across devices</string>
+    <string name="no_accounts_available">No accounts available</string>
+    <string name="sync_favourites">Sync favourites</string>
+    <string name="sync_history">Sync history</string>
+    <string name="sync_terms">Synchronization provided by anibreak.ru\n\nWe do not share your personal data with third parties but also we are not provide any warranty</string>
 </resources>
