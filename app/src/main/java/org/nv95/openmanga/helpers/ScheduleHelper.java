@@ -10,6 +10,7 @@ public class ScheduleHelper {
 
     public static final String ACTION_CHECK_APP_UPDATES = "app_update";
     public static final String ACTION_CHECK_NEW_CHAPTERS = "new_chapters";
+    public static final String ACTION_SYNC = "sync";
 
     private static final int HOUR = 1000 * 60 * 60;
     private final SharedPreferences mSharedPreferences;

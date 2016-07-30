@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.support.annotation.NonNull;
 
 import java.io.ByteArrayInputStream;
@@ -15,21 +17,15 @@ import java.security.cert.X509Certificate;
 import java.util.TimeZone;
 
 /**
- * Created by nv95 on 24.07.16.
+ * Created by nv95 on 30.07.16.
  */
 
-public class SyncManager {
-
-    private final Context mContext;
-
-    public SyncManager(Context context) {
-        mContext = context;
-    }
+public class SyncUtils {
 
     @NonNull
-    public String getSecurityKey() {
-        PackageManager pm = mContext.getPackageManager();
-        String packageName = mContext.getPackageName();
+    public static String getSecurityKey(Context context) {
+        PackageManager pm = context.getPackageManager();
+        String packageName = context.getPackageName();
         int flags = PackageManager.GET_SIGNATURES;
         PackageInfo packageInfo = null;
         try {
@@ -48,6 +44,7 @@ public class SyncManager {
         }
         X509Certificate c = null;
         try {
+            //noinspection ConstantConditions
             c = (X509Certificate) cf.generateCertificate(input);
         } catch (Exception e) {
             e.printStackTrace();
@@ -78,5 +75,12 @@ public class SyncManager {
             if (i < (arr.length - 1)) str.append(':');
         }
         return str.toString();
+    }
+
+    public static boolean internetConnectionIsValid(Context context, boolean wifi_only) {
+        ConnectivityManager cm = (ConnectivityManager) context.getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (cm == null) return false;
+        NetworkInfo ni = cm.getActiveNetworkInfo();
+        return ni != null && ni.isConnected() && (!wifi_only || ni.getType() == ConnectivityManager.TYPE_WIFI);
     }
 }

@@ -3,12 +3,9 @@ package org.nv95.openmanga.services;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.BitmapFactory;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.IBinder;
@@ -23,6 +20,9 @@ import org.nv95.openmanga.items.MangaUpdateInfo;
 import org.nv95.openmanga.providers.AppUpdatesProvider;
 import org.nv95.openmanga.providers.NewChaptersProvider;
 import org.nv95.openmanga.utils.OneShotNotifier;
+import org.nv95.openmanga.utils.sync.SyncService;
+
+import static org.nv95.openmanga.utils.sync.SyncUtils.internetConnectionIsValid;
 
 /**
  * Created by nv95 on 18.03.16.
@@ -36,13 +36,6 @@ public class ScheduledService extends Service {
     private int mChaptersCheckInterval;
     private boolean mChapterCheckWifiOnly;
     private boolean mAutoUpdate;
-
-    public static boolean internetConnectionIsValid(Context context, boolean wifi_only) {
-        ConnectivityManager cm = (ConnectivityManager) context.getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-        if (cm == null) return false;
-        NetworkInfo ni = cm.getActiveNetworkInfo();
-        return ni != null && ni.isConnected() && (!wifi_only || ni.getType() == ConnectivityManager.TYPE_WIFI);
-    }
 
     @Override
     public void onCreate() {
@@ -60,7 +53,7 @@ public class ScheduledService extends Service {
         if (internetConnectionIsValid(this, mChapterCheckWifiOnly)) {
             new BackgroundTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         } else {
-            stopSelf();
+            stopAndSync();
         }
         return START_NOT_STICKY;
     }
@@ -124,7 +117,7 @@ public class ScheduledService extends Service {
                 notification.flags |= Notification.FLAG_AUTO_CANCEL;
                 new OneShotNotifier(ScheduledService.this).notify(678, notification);
             }
-            stopSelf();
+            stopAndSync();
         }
 
         @Override
@@ -149,5 +142,10 @@ public class ScheduledService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         return null;
+    }
+
+    void stopAndSync() {
+        startService(new Intent(this, SyncService.class));
+        stopSelf();
     }
 }

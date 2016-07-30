@@ -93,6 +93,7 @@
         <service android:name=".services.DownloadService" />
         <service android:name=".services.ScheduledService" />
         <service android:name=".services.UpdateService" />
+        <service android:name=".utils.sync.SyncService" />
         <service android:name=".services.ImportService" />
 
         <receiver android:name=".ScheduledServiceReceiver"
