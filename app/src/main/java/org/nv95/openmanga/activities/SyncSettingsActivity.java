@@ -2,6 +2,7 @@ package org.nv95.openmanga.activities;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
@@ -11,7 +12,10 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 
 import org.nv95.openmanga.R;
+import org.nv95.openmanga.helpers.ScheduleHelper;
+import org.nv95.openmanga.utils.AppHelper;
 import org.nv95.openmanga.utils.sync.AccountSelector;
+import org.nv95.openmanga.utils.sync.SyncService;
 
 /**
  * Created by nv95 on 24.07.16.
@@ -21,6 +25,7 @@ public class SyncSettingsActivity extends BaseAppActivity implements Preference.
         View.OnClickListener {
 
     private SettingsFragment mSettingsFragment;
+    private SwitchCompat mSwitch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,12 +33,12 @@ public class SyncSettingsActivity extends BaseAppActivity implements Preference.
         setContentView(R.layout.activity_syncsttings);
         setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
         enableHomeAsUp();
-        final SwitchCompat toggle = (SwitchCompat) findViewById(R.id.switch_toggle);
-        toggle.setChecked(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean("sync.enabled", false));
-        toggle.setOnClickListener(this);
+        mSwitch = (SwitchCompat) findViewById(R.id.switch_toggle);
+        mSwitch.setChecked(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean("sync.enabled", false));
+        mSwitch.setOnClickListener(this);
 
         mSettingsFragment = new SettingsFragment();
-        if (toggle.isChecked()) {
+        if (mSwitch.isChecked()) {
             getFragmentManager().beginTransaction()
                     .add(R.id.content, mSettingsFragment)
                     .commit();
@@ -90,6 +95,22 @@ public class SyncSettingsActivity extends BaseAppActivity implements Preference.
             Preference preference = findPreference("sync.account");
             preference.setSummary(preference.getSharedPreferences().getString(preference.getKey(), getString(R.string.nothing_selected)));
             preference.setOnPreferenceClickListener((Preference.OnPreferenceClickListener) activity);
+
+            preference = findPreference("sync.status");
+            long lastSync = new ScheduleHelper(activity).getActionRawTime(ScheduleHelper.ACTION_SYNC);
+            if (lastSync < 0) {
+                preference.setSummary(R.string.never);
+            } else {
+                preference.setSummary(AppHelper.getReadableDateTimeRelative(lastSync));
+            }
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (mSwitch.isChecked()) {
+            startService(new Intent(this, SyncService.class));
+        }
+        super.onDestroy();
     }
 }
