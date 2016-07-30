@@ -291,4 +291,5 @@
     <string name="sync_favourites">Sync favourites</string>
     <string name="sync_history">Sync history</string>
     <string name="sync_terms">Synchronization provided by anibreak.ru\n\nWe do not share your personal data with third parties but also we are not provide any warranty</string>
+    <string name="drag_divider_hint">Disabled sources</string>
 </resources>

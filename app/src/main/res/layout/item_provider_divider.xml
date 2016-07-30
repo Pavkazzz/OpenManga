@@ -8,7 +8,7 @@
     android:paddingBottom="4dp"
     android:paddingLeft="?android:attr/listPreferredItemPaddingLeft"
     android:paddingRight="?android:attr/listPreferredItemPaddingRight"
-    android:background="?android:windowBackground"
+    android:background="@color/pressed_light"
     android:paddingTop="4dp">
 
     <ImageView
@@ -20,24 +20,11 @@
         android:layout_height="match_parent"
         tools:ignore="RtlSymmetry" />
 
-    <LinearLayout
-        android:layout_width="0dp"
+    <TextView
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:orientation="vertical">
-
-        <TextView
-            android:id="@android:id/text1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceListItem"
-            android:maxLines="1" />
-
-        <TextView
-            android:id="@android:id/text2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
-    </LinearLayout>
+        android:textAppearance="?android:attr/textAppearanceListItem"
+        android:text="@string/drag_divider_hint"
+        android:lines="1" />
 
 </LinearLayout>
