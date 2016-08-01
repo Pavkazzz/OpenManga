@@ -237,7 +237,7 @@ public class StorageHelper extends SQLiteOpenHelper {
         return tables.contains(tableName);
     }
 
-    public static int getColumnCount(SQLiteDatabase database, String table, @Nullable String where) {
+    public static int getRowsCount(SQLiteDatabase database, String table, @Nullable String where) {
         Cursor cursor = database.rawQuery("select count(*) from "
                 + table
                 + (where == null ? "" : " where " + where), null);

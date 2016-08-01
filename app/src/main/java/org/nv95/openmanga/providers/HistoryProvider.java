@@ -13,6 +13,7 @@ import org.nv95.openmanga.items.MangaPage;
 import org.nv95.openmanga.items.MangaSummary;
 import org.nv95.openmanga.lists.MangaList;
 import org.nv95.openmanga.utils.AppHelper;
+import org.nv95.openmanga.utils.sync.SyncQueue;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -168,6 +169,7 @@ public class HistoryProvider extends MangaProvider {
     public boolean remove(MangaInfo mangaInfo) {
         final SQLiteDatabase database = mStorageHelper.getWritableDatabase();
         database.delete(TABLE_NAME, "id=" + mangaInfo.id, null);
+        new SyncQueue(mContext).pushHistoryDeleted(mangaInfo.id);
         database.close();
         return true;
     }
@@ -176,8 +178,10 @@ public class HistoryProvider extends MangaProvider {
     public boolean remove(long[] ids) {
         final SQLiteDatabase database = mStorageHelper.getWritableDatabase();
         database.beginTransaction();
+        SyncQueue syncQueue = new SyncQueue(mContext);
         for (long o : ids) {
             database.delete(TABLE_NAME, "id=" + o, null);
+            syncQueue.pushHistoryDeleted(o);
         }
         database.setTransactionSuccessful();
         database.endTransaction();
@@ -186,7 +190,21 @@ public class HistoryProvider extends MangaProvider {
     }
 
     public void clear() {
-        final SQLiteDatabase database = mStorageHelper.getWritableDatabase();
+        SyncQueue syncQueue = new SyncQueue(mContext);
+        SQLiteDatabase database = mStorageHelper.getWritableDatabase();
+        Cursor cursor = null;
+        try {
+            cursor = database.query(TABLE_NAME, new String[]{"id"}, null, null, null, null, null);
+            if (cursor.moveToFirst()) {
+                do {
+                    syncQueue.pushHistoryDeleted(cursor.getLong(0));
+                } while (cursor.moveToNext());
+            }
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
         database.delete(TABLE_NAME, null, null);
         database.close();
     }
@@ -194,7 +212,7 @@ public class HistoryProvider extends MangaProvider {
     public boolean has(MangaInfo mangaInfo) {
         boolean res;
         SQLiteDatabase database = mStorageHelper.getReadableDatabase();
-        res = StorageHelper.getColumnCount(database, TABLE_NAME, "id=" + mangaInfo.id) != 0;
+        res = StorageHelper.getRowsCount(database, TABLE_NAME, "id=" + mangaInfo.id) != 0;
         database.close();
         return res;
     }

@@ -17,6 +17,7 @@ import org.nv95.openmanga.items.MangaSummary;
 import org.nv95.openmanga.lists.MangaList;
 import org.nv95.openmanga.utils.AppHelper;
 import org.nv95.openmanga.utils.FileLogger;
+import org.nv95.openmanga.utils.sync.SyncQueue;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -146,6 +147,7 @@ public class FavouritesProvider extends MangaProvider {
     public boolean remove(MangaInfo mangaInfo) {
         final SQLiteDatabase database = mStorageHelper.getWritableDatabase();
         int c = database.delete(TABLE_NAME, "id=?", new String[]{String.valueOf(mangaInfo.id)});
+        new SyncQueue(mContext).pushFavouritesDeleted(mangaInfo.id);
         database.close();
         return c > 0;
     }
@@ -154,8 +156,10 @@ public class FavouritesProvider extends MangaProvider {
     public boolean remove(long[] ids) {
         final SQLiteDatabase database = mStorageHelper.getWritableDatabase();
         database.beginTransaction();
+        SyncQueue syncQueue = new SyncQueue(mContext);
         for (long o : ids) {
             database.delete(TABLE_NAME, "id=" + o, null);
+            syncQueue.pushFavouritesDeleted(o);
         }
         database.setTransactionSuccessful();
         database.endTransaction();
@@ -166,7 +170,7 @@ public class FavouritesProvider extends MangaProvider {
 
     public boolean has(MangaInfo mangaInfo) {
         final SQLiteDatabase database = mStorageHelper.getReadableDatabase();
-        boolean res = StorageHelper.getColumnCount(database, TABLE_NAME, "id=" + mangaInfo.id) != 0;
+        boolean res = StorageHelper.getRowsCount(database, TABLE_NAME, "id=" + mangaInfo.id) != 0;
         database.close();
         return res;
     }

@@ -6,7 +6,9 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.annotation.WorkerThread;
 
+import org.json.JSONObject;
 import org.nv95.openmanga.helpers.ScheduleHelper;
+import org.nv95.openmanga.helpers.StorageHelper;
 import org.nv95.openmanga.utils.FileLogger;
 
 /**
@@ -27,7 +29,7 @@ public class SyncService extends IntentService {
     }
 
     @WorkerThread
-    void synchronizeNow() {
+    private void synchronizeNow() {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this.getApplicationContext());
         if (!prefs.getBoolean("sync.enabled", false) || !SyncUtils.internetConnectionIsValid(this, prefs.getBoolean("sync.wifionly", false))) {
             return;
@@ -43,10 +45,33 @@ public class SyncService extends IntentService {
         }
         boolean syncHistory = prefs.getBoolean("sync.history", true);
         boolean syncFavourites = prefs.getBoolean("sync.favourites", true);
-        String token = SyncUtils.getSecurityKey(SyncService.this);
+        try {
+            SyncQueue syncQueue = new SyncQueue(SyncService.this);
+            StorageHelper storageHelper = new StorageHelper(this);
+            JSONObject syncData = new JSONObject();
+            if (syncHistory) {
+                syncData.put("history", storageHelper.extractTableData("history"));
+                syncData.put("history_deleted", syncQueue.getDeletedHistory());
+            }
+            if (syncFavourites) {
+                syncData.put("favourites", storageHelper.extractTableData("favourites"));
+                syncData.put("favourites_deleted", syncQueue.getDeletedFavourites());
+            }
+            storageHelper.close();
+            syncData.put("user", account);
+            syncData.put("security_key", SyncUtils.getSecurityKey(SyncService.this));
 
-        // TODO: 30.07.16
+            // TODO: 01.08.16
 
-        new ScheduleHelper(SyncService.this).actionDone(ScheduleHelper.ACTION_SYNC);
+            if (syncFavourites) {
+                syncQueue.clearFavourites();
+            }
+            if (syncHistory) {
+                syncQueue.clearHistory();
+            }
+            new ScheduleHelper(SyncService.this).actionDone(ScheduleHelper.ACTION_SYNC);
+        } catch (Exception e) {
+            FileLogger.getInstance().report(e);
+        }
     }
 }

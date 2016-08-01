@@ -96,7 +96,7 @@ public class MangaStore {
             cv.put("name", chapter.name);
             database = mDatabaseHelper.getWritableDatabase();
             cv.put("number", chapter.number == -1 ?
-                    StorageHelper.getColumnCount(database, TABLE_CHAPTERS, "mangaid=" + mangaId)
+                    StorageHelper.getRowsCount(database, TABLE_CHAPTERS, "mangaid=" + mangaId)
                     : chapter.number);
             if (database.update(TABLE_CHAPTERS,cv, "id=" + id, null) == 0) {
                 database.insert(TABLE_CHAPTERS, null, cv);
@@ -136,7 +136,7 @@ public class MangaStore {
             }
             cv.put("file", dest.getName());
             database = mDatabaseHelper.getWritableDatabase();
-            cv.put("number", StorageHelper.getColumnCount(database, TABLE_PAGES, "chapterid=" + chapterId));
+            cv.put("number", StorageHelper.getRowsCount(database, TABLE_PAGES, "chapterid=" + chapterId));
             if (database.update(TABLE_PAGES,cv, "id=" + id, null) == 0) {
                 database.insert(TABLE_PAGES, null, cv);
             }
